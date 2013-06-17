@@ -6,47 +6,76 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function createApp() {
 
+	var port;
+
 	// This probably isn't a good idea
 	var TaskNames = {
 		platesmithing: {
 			gatherHighQualityOre: 'Gather High quality Iron Ore',
 			forgeSteelPlates: 'Forge Steel Plates'
+		},
+		leadership: {
+			feedTheNeedy: 'Feed the Needy'
 		}
 	};
 
-	function sendMessage(data, handler) {
-		chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-			chrome.tabs.sendMessage(tab[0].id, data, handler);
-		});
+	function sendMessage(data) {
+		var id = _.uniqueId('queue-item-');
+		data.id = id;
+		port.postMessage(data)
+		return id;
 	}
 
 	function addToQueue(name, id) {
 		$('#queue').append($('<li>').text(name).addClass(id));
 	}
 
+	function removeFromQueue(id) {
+		$('#queue').find('li.' + id).remove();
+	}
+
+	function connectToPort() {
+		chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+			port = chrome.tabs.connect(tab[0].id, {name: 'commands'});
+			port.onMessage.addListener(function(msg) {
+				if (msg.result == 'done') {
+					removeFromQueue(msg.id);
+				}
+			});
+		});
+	}
+
+	function bindTaskButtons() {
+		$('button.task').click(function(event) {
+			var $el = $(event.target),
+				profession = $el.data('profession'),
+				taskName = TaskNames[profession][$el.data('name')],
+				id;
+				
+
+			id = sendMessage({
+				action: 'addTask',
+				profession: profession,
+				name: taskName
+			});
+
+			addToQueue(taskName, id);
+		});
+	}
+
+	function bindCollectButton() {
+		$('button.collect-all').click(function(event) {
+			var id = sendMessage({ action: 'collectAll' });
+			addToQueue('Collect All', id)
+		});
+	}
+
 	return {	
 
 		start: function() {
-			$('button.task').click(function(event) {
-				var $el = $(event.target),
-					profession = $el.data('profession'),
-					taskName = TaskNames[profession][$el.data('name')],
-					id = _.uniqueId('queue-item-');
-
-				sendMessage({
-					action: 'addTask',
-					profession: profession,
-					name: taskName,
-					id: id
-				});
-
-				addToQueue(taskName, id);
-			});
-
-
-			$('button.collect-all').click(function(event) {
-				sendMessage({ action: 'collectAll' });
-			});
+			connectToPort();
+			bindTaskButtons();
+			bindCollectButton();
 		}
 	}
 }

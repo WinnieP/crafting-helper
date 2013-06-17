@@ -74,15 +74,13 @@ var Tasks = (function() {
 						return Async.processChain(stepsWithPauses);
 					}
 
-
-
 			return Async.createStep([navigation, collectCompleted]);
 		},
 
 		startTask: function(profession, taskName) {
 			console.log('startTask');
 			return Async.createStep([
-				NavigateTo[profession],
+				NavigateTo.profession(profession),
 				Timing.pause,
 				openTask(taskName),
 				clickStart

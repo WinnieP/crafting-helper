@@ -2,7 +2,8 @@ var NavigateTo = (function() {
 
 	var dataUrls = {
 		overview: '/professions',
-		platesmithing: '/professions-tasks/Armorsmithing_Heavy'
+		platesmithing: '/professions-tasks/Armorsmithing_Heavy',
+		leadership: '/professions-tasks/Leadership'
 	};
 
 	function findByDataUrl(dataUrl) {
@@ -21,12 +22,8 @@ var NavigateTo = (function() {
 
 	var navigateTo = {
 
-		overview: function() {
-			clickElement(findByDataUrl(dataUrls.overview));
-		},
-
-		platesmithing: function() {
-			clickElement(findByDataUrl(dataUrls.platesmithing));
+		profession: function(profession) {
+			clickElement(findByDataUrl(dataUrls[profession]));
 		},
 
 		// Returns callback that will go to next page until task is found
