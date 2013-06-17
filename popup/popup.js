@@ -20,19 +20,27 @@ function createApp() {
 		});
 	}
 
+	function addToQueue(name, id) {
+		$('#queue').append($('<li>').text(name).addClass(id));
+	}
+
 	return {	
 
 		start: function() {
 			$('button.task').click(function(event) {
 				var $el = $(event.target),
 					profession = $el.data('profession'),
-					taskName = TaskNames[profession][$el.data('name')];
+					taskName = TaskNames[profession][$el.data('name')],
+					id = _.uniqueId('queue-item-');
 
 				sendMessage({
 					action: 'addTask',
 					profession: profession,
-					name: taskName
+					name: taskName,
+					id: id
 				});
+
+				addToQueue(taskName, id);
 			});
 
 

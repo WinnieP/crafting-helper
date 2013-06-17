@@ -21,7 +21,16 @@
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],
-			"js": ["lib/jquery.min.js", "lib/underscore-min.js", "content_scripts/main.js"]
+			"js": [
+				"lib/jquery.min.js",
+				"lib/underscore-min.js",
+				"content_scripts/timing.js",
+				"content_scripts/logging.js",
+				"content_scripts/async.js",
+				"content_scripts/tasks.js",
+				"content_scripts/navigate-to.js",
+				"content_scripts/main.js"
+			]
 		}
 	]
 }

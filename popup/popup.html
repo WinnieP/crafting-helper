@@ -10,7 +10,8 @@
 		</style>
 	</head>
 	<body>
-		<ul>
+		<h4>Actions</h4>
+		<ul id="actions">
 			<li>
 				<button class="task" data-profession="platesmithing" data-name="gatherHighQualityOre">
 					Gather High Quality Ore
@@ -18,11 +19,16 @@
 			</li>
 		</ul>
 
+		<h4>Queue</h4>
+		<ul id="queue">
+		</ul>
+
 		<button class="collect-all">
 			Collect All
 		</button>
 
 		<script src="/lib/jquery.min.js"></script>
+		<script src="/lib/underscore-min.js"></script>
 		<script src="/popup/popup.js"></script>
 	</body>
 </html>
