@@ -24,6 +24,11 @@ var DEFAULT_WAIT = 3000;
 
 var NavigateTo = (function() {
 
+	var dataUrls = {
+		professions: '/professions',
+		platesmithing: '/professions-tasks/Armorsmithing_Heavy'
+	};
+
 	function clickElement($element) {
 		var event = document.createEvent("MouseEvent");
 		event.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
@@ -34,9 +39,13 @@ var NavigateTo = (function() {
 		return $('a[data-url="' + dataUrl + '"]');
 	}
 
-	function taskExists(title) {
+	function findTask(title) {
 		var $title = $('span:contains("' + title + '")');
-		return !!$title.length;
+		return $title.closest('tr'); // brittleness alert
+	}
+
+	function continueTask($task) {
+		clickElement($task.find('button')); // brittleness alert
 	}
 
 	function nextPage() {
@@ -44,23 +53,41 @@ var NavigateTo = (function() {
 	}
 
 	var navigateTo = {
+
 		professions: function() {
-			clickElement(findByDataUrl('/professions'));
+			clickElement(findByDataUrl(dataUrls.professions));
 		},
 
 		platesmithing: function() {
-			clickElement(findByDataUrl('/professions-tasks/Armorsmithing_Heavy'));
+			clickElement(findByDataUrl(dataUrls.platesmithing));
 		},
 
-		pageWithTaskWithPageLimit: function(taskTitle, pagesToTry) {
+		task: function(taskTitle) {
+			// When should we start worrying?
 			return function() {
 				var d = $.Deferred();
+
+				processChain(
+					navigateTo.pageWithTask(taskTitle, 20),
+					continueTask
+				);
+
+				return d.promise();
+			};
+		},
+
+		// Returns callback that will go to next page until task is found
+		// and resolve with the jQuery row entry corresponding to that task
+		pageWithTask: function(taskTitle, pagesToTry) {
+			return function() {
+				var d = $.Deferred(),
+					task = findTask(taskTitle);
 
 				if (pagesToTry <= 0) {
 					d.reject();
 				} else {
-					if (taskExists(taskTitle)) {
-						d.resolve();
+					if (task.length) {
+						d.resolve(task);
 					} else {
 						processChain(
 							nextPage,
@@ -74,11 +101,6 @@ var NavigateTo = (function() {
 
 				return d.promise();
 			}
-		},
-
-		pageWithTask: function(taskTitle) {
-			// When should we start worrying?
-			return navigateTo.pageWithTaskWithPageLimit(taskTitle, 20);
 		}
 	};
 
@@ -90,6 +112,7 @@ var NavigateTo = (function() {
 var Timing = (function() {
 
 	var timing = {
+
 		wait: function(milliseconds) {
 			return function() {
 				var waitForIt = $.Deferred();
@@ -112,6 +135,7 @@ var Timing = (function() {
 var Logging = (function() {
 
 	var logging = {
+
 		console: function(message) {
 			return function() {
 				console.log(message);
@@ -140,7 +164,7 @@ function gatherHighQualityIronOre() {
 	processChain(
 		NavigateTo.platesmithing,
 		Timing.pause,
-		NavigateTo.pageWithTask(Tasks.gather.ore.high),
+		NavigateTo.task(Tasks.gather.ore.high),
 		[Logging.alert('found'), Logging.alert('not found')]
 	);
 }
