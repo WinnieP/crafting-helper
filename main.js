@@ -1,18 +1,15 @@
-// This probably isn't a good idea
-var TaskNames = {
-	platesmithing: {
-		gatherHighQualityOre: 'Gather High quality Iron Ore',
-		forgeSteelPlates: 'Forge Steel Plates'
+chrome.runtime.onMessage.addListener(
+	function(request, sender, sendResponse) {
+		switch(request.action) {
+			case 'addTask':
+				processChain([
+					Tasks.startTask(request.profession, request.name)
+				]);
+				break;
+		} 
 	}
-};
+);
 
-function main() {
-	processChain([
-		Tasks.collect(1),
-		Timing.pause,
-		Tasks.startTask('platesmithing', TaskNames.platesmithing.gatherHighQualityOre)
-	]);
-}
 
 function processChain(steps) {
 	var chain = $.Deferred(),
@@ -228,6 +225,3 @@ var Logging = (function() {
 
 	return logging;
 })();
-
-
-main();
