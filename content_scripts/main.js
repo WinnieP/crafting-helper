@@ -6,6 +6,9 @@ chrome.runtime.onMessage.addListener(
 					Tasks.startTask(request.profession, request.name)
 				]);
 				break;
+			case 'collectAll':
+				Tasks.collectAll();
+				break;
 		} 
 	}
 );
@@ -30,13 +33,11 @@ function processChain(steps) {
 	return lastRet;
 }
 
-function createStep() {
-	var args = arguments;
-
+function createStep(pieces) {
 	return function() {
 		var d = $.Deferred();
 
-		processChain(args).then(d.resolve, d.reject)
+		processChain(pieces).then(d.resolve, d.reject)
 
 		return d.promise();
 	}
@@ -125,12 +126,32 @@ var Tasks = (function() {
 
 	function collectSlot(slot) {
 		return function() {
-			clickElement($('.professions-slots li:nth-child(' + (slot + 1) + ') button:contains("Collect Result")'));
+			clickElement($('.professions-slots > li:nth-child(' + (slot + 1) + ') button:contains("Collect Result")'));
 		}
 	}
 
 	function collectModal() {
 		clickElement($('#modal_content button:contains("Collect Result")'));
+	}
+
+	function getCompletedSlots() {
+		var slots = [];
+
+		$('.professions-slots > li').each(function(idx, el) {
+			if ($(el).find('*:contains("Task Complete!")').length) {
+				slots.push(idx);
+			}
+		})
+
+		return slots;
+	}
+
+	function repeat(val, times) {
+		if (times <= 0) {
+			return [];
+		} else {
+			return repeat(val, times-1).concat(val);
+		}
 	}
 	
 	function openTask(taskTitle) {
@@ -152,22 +173,34 @@ var Tasks = (function() {
 	var tasks = {
 
 		collect: function(slot) {
-			return createStep(
+			return createStep([
 				NavigateTo.overview,
 				Timing.pause,
 				collectSlot(slot),
 				Timing.pause,
 				collectModal
-			);
+			]);
+		},
+
+		collectAll: function() {
+			var slots = getCompletedSlots(),
+				steps = _.map(slots, function(slotNumber) {
+						return tasks.collect(slotNumber);
+					}),
+				stepsWithPauses = _.flatten(
+						_.zip(steps, repeat(Timing.wait, steps.length))
+					);
+
+				processChain(stepsWithPauses);
 		},
 
 		startTask: function(profession, taskName) {
-			return createStep(
+			return createStep([
 				NavigateTo[profession],
 				Timing.pause,
 				openTask(taskName),
 				clickStart
-			);
+			]);
 		}
 	};
 
