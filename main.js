@@ -1,6 +1,4 @@
-function main() {
-	goToProfessions();
-}
+
 
 function clickElement($element) {
 	var event = document.createEvent("MouseEvent");
@@ -18,6 +16,29 @@ function goToProfessions() {
 
 function goToPlatesmithing() {
 	clickElement(findByDataUrl('/professions-tasks/Armorsmithing_Heavy'));
+}
+
+function wait(milliseconds) {
+	return function(deferred) {
+		var waitForIt = $.Deferred();
+
+		setTimeout(function() {
+			waitForIt.resolve();
+		}, milliseconds)
+
+		return waitForIt.promise();
+	}
+}
+
+function main() {
+	var chain = $.Deferred();
+
+	chain
+		.then(goToProfessions)
+		.then(wait(3000))
+		.then(goToPlatesmithing);
+
+	chain.resolve();
 }
 
 main();
