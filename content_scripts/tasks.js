@@ -59,9 +59,10 @@ var Tasks = (function() {
 		},
 
 		collectAll: function() {
-			console.log('collectAll');
-			var navigation = Async.createStep([NavigateTo.overview, Timing.pause]),
+			console.log('collectAll:called');
+			var navigation = Async.createStep([NavigateTo.overview, Timing.pause, Logging.console('collectAll:navigateion')]),
 				collectCompleted = function() {
+						console.log('collectAll:collectCompleted');
 						var slots = getCompletedSlots(),
 							steps = _.map(slots, function(slotNumber) {
 									return tasks.collect(slotNumber);

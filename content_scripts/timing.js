@@ -1,5 +1,17 @@
 var Timing = (function() {
 
+	function poll(verifier, milliseconds) {
+		var d = $.Deferred();
+		setTimeout(function() {
+			if (verifier()) {
+				d.resolve();
+			} else {
+				poll(verifier, milliseconds).then(d.resolve);
+			}
+		}, milliseconds);
+		return d.promise();
+	}
+
 	var timing = {
 
 		// TODO: have the return values fit some sort of normal distribution
@@ -17,12 +29,13 @@ var Timing = (function() {
 
 				return waitForIt.promise();
 			}
+		},
+
+		pause: function() {
+			return poll(function() { return !$('.loading-block').length; }, 1000);
 		}
-	}
-
-	// have this rely on waiting for that spinny thing to go away? $('.loading-block').length
-	timing.pause = timing.wait(5000);
-
+	
+}
 	// for non-server call things? better name needed
 	timing.moment = timing.wait(500);
 
