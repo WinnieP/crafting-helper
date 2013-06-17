@@ -4,10 +4,17 @@ function main() {
 
 function processChain() {
 	var chain = $.Deferred(),
-		lastRet = chain;
+		lastRet = chain,
+		arg;
 
 	for (var i = 0; i < arguments.length; i++) {
-		lastRet = lastRet.then(arguments[i]);
+		arg = arguments[i];
+		// bleh - find easy way to call function like this w/o having arg be of 2 types
+		if (arg instanceof Array) {
+			lastRet = lastRet.then(arg[0], arg[1]);
+		} else {
+			lastRet = lastRet.then(arg);
+		}
 	}
 
 	chain.resolve();
@@ -45,25 +52,33 @@ var NavigateTo = (function() {
 			clickElement(findByDataUrl('/professions-tasks/Armorsmithing_Heavy'));
 		},
 
-		// Add a param for number of times allowed to go next until reject?
-		pageWithTask: function(taskTitle) {
+		pageWithTaskWithPageLimit: function(taskTitle, pagesToTry) {
 			return function() {
-				var d = $.Deferred(),
-					chain = $.Deferred();
+				var d = $.Deferred();
 
-				if (taskExists(taskTitle)) {
-					d.resolve();
+				if (pagesToTry <= 0) {
+					d.reject();
 				} else {
-					processChain(
-						nextPage,
-						Timing.pause,
-						navigateTo.pageWithTask(taskTitle),
-						d.resolve
-					);
+					if (taskExists(taskTitle)) {
+						d.resolve();
+					} else {
+						processChain(
+							nextPage,
+							Timing.pause,
+							navigateTo.pageWithTask(taskTitle, pagesToTry-1),
+							[d.resolve, d.reject]
+						);
+					}
 				}
+
 
 				return d.promise();
 			}
+		},
+
+		pageWithTask: function(taskTitle) {
+			// When should we start worrying?
+			return navigateTo.pageWithTaskWithPageLimit(taskTitle, 20);
 		}
 	};
 
@@ -88,6 +103,7 @@ var Timing = (function() {
 		}
 	}
 
+	// have this rely on waiting for that spinny thing to go away? $('.loading-block').length
 	timing.pause = timing.wait(3000);
 
 	return timing;
@@ -125,7 +141,7 @@ function gatherHighQualityIronOre() {
 		NavigateTo.platesmithing,
 		Timing.pause,
 		NavigateTo.pageWithTask(Tasks.gather.ore.high),
-		Logging.alert('found')
+		[Logging.alert('found'), Logging.alert('not found')]
 	);
 }
 
