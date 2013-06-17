@@ -1,22 +1,21 @@
-var queue = [];
+var queue = Async.processChain([]);
 
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
 		switch(request.action) {
 			case 'addTask':
-				queue.push(Tasks.startTask(request.profession, request.name));
+				addToQueue(Tasks.startTask(request.profession, request.name));
 				break;
 			case 'collectAll':
-				queue.push(Tasks.collectAll);
+				addToQueue(Tasks.collectAll());
 				break;
-		}
-
-		if (queue.length == 1) {
-			
 		}
 	}
 );
 
+function addToQueue(action) {
+	queue = queue.then(action).then(Timing.pause);
+}
 
 function clickElement($element) {
 	var event = document.createEvent("MouseEvent");

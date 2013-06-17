@@ -24,7 +24,10 @@ var Async = (function() {
 			return function() {
 				var d = $.Deferred();
 
-				async.processChain(pieces).then(d.resolve, d.reject)
+				async.processChain(pieces).then(
+					function() { d.resolve() },
+					function() { d.reject() }
+				);
 
 				return d.promise();
 			}

@@ -59,18 +59,28 @@ var Tasks = (function() {
 		},
 
 		collectAll: function() {
-			var slots = getCompletedSlots(),
-				steps = _.map(slots, function(slotNumber) {
-						return tasks.collect(slotNumber);
-					}),
-				stepsWithPauses = _.flatten(
-						_.zip(steps, repeat(Timing.wait, steps.length))
-					);
+			console.log('collectAll');
+			var navigation = Async.createStep([NavigateTo.overview, Timing.pause]),
+				collectCompleted = function() {
+						var slots = getCompletedSlots(),
+							steps = _.map(slots, function(slotNumber) {
+									return tasks.collect(slotNumber);
+								}),
+							stepsWithPauses = _.flatten(
+									_.zip(steps, repeat(Timing.wait, steps.length))
+								)
+						console.log(slots);
 
-				Async.processChain(stepsWithPauses);
+						return Async.processChain(stepsWithPauses);
+					}
+
+
+
+			return Async.createStep([navigation, collectCompleted]);
 		},
 
 		startTask: function(profession, taskName) {
+			console.log('startTask');
 			return Async.createStep([
 				NavigateTo[profession],
 				Timing.pause,
