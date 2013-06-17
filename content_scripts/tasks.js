@@ -50,7 +50,7 @@ var Tasks = (function() {
 
 		collect: function(slot) {
 			return Async.createStep([
-				NavigateTo.overview,
+				NavigateTo.profession('overview'),
 				Timing.pause,
 				collectSlot(slot),
 				Timing.pause,
@@ -60,7 +60,7 @@ var Tasks = (function() {
 
 		collectAll: function() {
 			console.log('collectAll:called');
-			var navigation = Async.createStep([NavigateTo.overview, Timing.pause, Logging.console('collectAll:navigateion')]),
+			var navigation = Async.createStep([NavigateTo.profession('overview'), Timing.pause, Logging.console('collectAll:navigateion')]),
 				collectCompleted = function() {
 						console.log('collectAll:collectCompleted');
 						var slots = getCompletedSlots(),
