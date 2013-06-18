@@ -15,7 +15,6 @@ var NavigateTo = (function() {
 		return $title.closest('tr'); // brittleness alert
 	}
 
-
 	function nextPage() {
 		clickElement($('#tasklist_next'));
 	}
@@ -23,7 +22,9 @@ var NavigateTo = (function() {
 	var navigateTo = {
 
 		profession: function(profession) {
-			clickElement(findByDataUrl(dataUrls[profession]));
+			return function() {
+				clickElement(findByDataUrl(dataUrls[profession]));
+			}
 		},
 
 		// Returns callback that will go to next page until task is found

@@ -21,7 +21,7 @@ function addToQueue(action, id, port) {
 				port.postMessage({ result: 'done', id:  id });
 				return $.Deferred().resolve(val).promise();
 			})
-		.then(Timing.pause);
+		.then(Timing.wait(2500));
 }
 
 function clickElement($element) {
