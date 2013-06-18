@@ -12,12 +12,31 @@ function createApp() {
 	var TaskNames = {
 		platesmithing: {
 			gatherHighQualityOre: 'Gather High quality Iron Ore',
+			massSteelPlateForging: 'Mass Steel Plate Forging',
 			forgeSteelPlates: 'Forge Steel Plates'
 		},
 		leadership: {
-			feedTheNeedy: 'Feed the Needy'
+			feedTheNeedy: 'Feed the Needy',
+			assistLocalWizard: 'Assist Local Wizard'
 		}
 	};
+
+	function addTaskButtons() {
+		for (var profession in TaskNames) {
+			var professionTaskNames = TaskNames[profession];
+
+			for (var name in professionTaskNames) {
+				$('#actions').append(
+					$('<li>').append(
+						$('<button class="task">').data({
+							profession: profession,
+							name: name
+						}).text(professionTaskNames[name])
+					)
+				);
+			}
+		}
+	}
 
 	function sendMessage(data) {
 		var id = _.uniqueId('queue-item-');
@@ -74,6 +93,7 @@ function createApp() {
 
 		start: function() {
 			connectToPort();
+			addTaskButtons();
 			bindTaskButtons();
 			bindCollectButton();
 		}

@@ -60,17 +60,15 @@ var Tasks = (function() {
 
 		collectAll: function() {
 			console.log('collectAll:called');
-			var navigation = Async.createStep([NavigateTo.profession('overview'), Timing.pause, Logging.console('collectAll:navigateion')]),
+			var navigation = Async.createStep([NavigateTo.profession('overview'), Timing.pause]),
 				collectCompleted = function() {
-						console.log('collectAll:collectCompleted');
 						var slots = getCompletedSlots(),
 							steps = _.map(slots, function(slotNumber) {
 									return tasks.collect(slotNumber);
 								}),
 							stepsWithPauses = _.flatten(
-									_.zip(steps, repeat(Timing.wait, steps.length))
+									_.zip(steps, repeat(Timing.pause(1000), steps.length))
 								)
-						console.log(slots);
 
 						return Async.processChain(stepsWithPauses);
 					}
