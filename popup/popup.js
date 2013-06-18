@@ -21,23 +21,6 @@ function createApp() {
 		}
 	};
 
-	function addTaskButtons() {
-		for (var profession in TaskNames) {
-			var professionTaskNames = TaskNames[profession];
-
-			for (var name in professionTaskNames) {
-				$('#actions').append(
-					$('<li>').append(
-						$('<button class="task">').data({
-							profession: profession,
-							name: name
-						}).text(professionTaskNames[name])
-					)
-				);
-			}
-		}
-	}
-
 	function sendMessage(data) {
 		var id = _.uniqueId('queue-item-');
 		data.id = id;
@@ -53,49 +36,63 @@ function createApp() {
 		$('#queue').find('li.' + id).remove();
 	}
 
-	function connectToPort() {
-		chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-			port = chrome.tabs.connect(tab[0].id, {name: 'commands'});
-			port.onMessage.addListener(function(msg) {
-				if (msg.result == 'done') {
-					removeFromQueue(msg.id);
-				}
-			});
-		});
-	}
-
-	function bindTaskButtons() {
-		$('button.task').click(function(event) {
-			var $el = $(event.target),
-				profession = $el.data('profession'),
-				taskName = TaskNames[profession][$el.data('name')],
-				id;
-				
-
-			id = sendMessage({
-				action: 'addTask',
-				profession: profession,
-				name: taskName
-			});
-
-			addToQueue(taskName, id);
-		});
-	}
-
-	function bindCollectButton() {
-		$('button.collect-all').click(function(event) {
-			var id = sendMessage({ action: 'collectAll' });
-			addToQueue('Collect All', id)
-		});
-	}
 
 	return {	
 
 		start: function() {
-			connectToPort();
-			addTaskButtons();
-			bindTaskButtons();
-			bindCollectButton();
+			this.connectToPort();
+			this.addTaskButtons();
+			this.bindButtons();
+		},
+
+		addTaskButtons: function() {
+			for (var profession in TaskNames) {
+				var professionTaskNames = TaskNames[profession];
+
+				for (var name in professionTaskNames) {
+					var html = Handlebars.templates['task-button']({
+						profession: profession,
+						name: name,
+						text: professionTaskNames[name]
+					})
+					$('#actions').append(html);
+				}
+			}
+		},
+
+		connectToPort: function() {
+			chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
+				console.log(tab);
+				port = chrome.tabs.connect(tab[0].id, {name: 'commands'});
+				port.onMessage.addListener(function(msg) {
+					if (msg.result == 'done') {
+						removeFromQueue(msg.id);
+					}
+				});
+			});
+		},
+
+		bindButtons: function() {
+			$('button.task').click(function(event) {
+				var $el = $(event.target),
+					profession = $el.data('profession'),
+					taskName = TaskNames[profession][$el.data('name')],
+					id;
+					
+
+				id = sendMessage({
+					action: 'addTask',
+					profession: profession,
+					name: taskName
+				});
+
+				addToQueue(taskName, id);
+			});
+
+			$('button.collect-all').click(function(event) {
+				var id = sendMessage({ action: 'collectAll' });
+				addToQueue('Collect All', id)
+			});
 		}
-	}
+	};
 }
