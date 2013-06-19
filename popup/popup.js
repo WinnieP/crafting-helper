@@ -103,6 +103,17 @@ function createApp() {
 				addToQueue(taskName, id);
 			});
 
+			$('.mode').click(function(event) {
+				$(this).addClass('pure-menu-selected');
+				$(this).siblings().removeClass('pure-menu-selected');
+				sendMessage({
+					action: 'changeMode',
+					mode: $(this).data('mode'),
+					profession: 'platesmithing',
+					name: TaskNames.platesmithing.gatherHighQualityOre
+				});
+			});
+
 			$('.collect-all').click(function(event) {
 				var id = sendMessage({ action: 'collectAll' });
 				addToQueue('Collect All', id)

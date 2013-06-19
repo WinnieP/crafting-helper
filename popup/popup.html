@@ -27,6 +27,9 @@
 			.queue-section {
 				padding-left: 20px;
 			}
+			.mode-menu {
+				padding-top: 10px;
+			}
 		</style>
 	</head>
 	<body>
@@ -37,17 +40,25 @@
 				<a class="pure-menu-heading">Collect All</a>
 			</div>
 
+			<div class="pure-menu pure-menu-open pure-menu-horizontal mode-menu">
+				<a href="#" class="pure-menu-heading">Modes</a>
+			    <ul>
+			        <li data-mode="manual" class="mode pure-menu-selected"><a href="#">Manual</a></li>
+			        <li data-mode="auto" class="mode"><a href="#">Auto</a></li>
+			    </ul>
+			</div>
+
 			<div class="queue-section">
 				<h4>Queue</h4>
 				<ul id="queue" style="">
 				</ul>
 			</div>
-
-			<script src="/lib/jquery.min.js"></script>
-			<script src="/lib/underscore-min.js"></script>
-			<script src="/lib/handlebars.runtime.js"></script>
-			<script src="/popup/templates.js"></script>
-			<script src="/popup/popup.js"></script>
 		</div>
+
+		<script src="/lib/jquery.min.js"></script>
+		<script src="/lib/underscore-min.js"></script>
+		<script src="/lib/handlebars.runtime.js"></script>
+		<script src="/popup/templates.js"></script>
+		<script src="/popup/popup.js"></script>
 	</body>
 </html>

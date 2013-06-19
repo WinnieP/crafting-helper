@@ -1,5 +1,7 @@
 var Tasks = (function() {
 
+	var intervalId;
+
 	function clickContinue($task) {
 		clickElement($task.find('button')); // brittleness alert
 	}
@@ -77,13 +79,52 @@ var Tasks = (function() {
 		},
 
 		startTask: function(profession, taskName) {
-			console.log('startTask');
 			return Async.createStep([
 				NavigateTo.profession(profession),
 				Timing.pause,
 				openTask(taskName),
 				clickStart
 			]);
+		},
+
+		repeat: function(task) {
+			var openSlots;
+
+			Async.processChain([
+				NavigateTo.profession('overview'),
+				Timing.pause
+			]).then(function() {
+
+				var func = function() {
+					console.log('tick');
+					if (mode != 'auto') {
+						clearInterval(intervalId);
+					} else {						
+						openSlots = getCompletedSlots();
+						if (openSlots.length) {
+							clearInterval(intervalId);
+
+							Async.processChain([
+								tasks.collect(openSlots[0]),
+								Timing.pause,
+								task,
+								Timing.pause,
+								NavigateTo.profession('overview'),
+								Timing.pause
+							]).then(function() {
+								intervalId = setInterval(func, 1000)
+							});
+						}
+					}
+				};
+
+				intervalId = setInterval(func, 1000);
+			})
+		}
+
+		stop: function() {
+			clearInterval(intervalId);
+			intervalId = null;
 		}
 	};
 

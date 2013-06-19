@@ -1,14 +1,23 @@
-var queue = Async.processChain([]);
+var queue = Async.processChain([]),
+	mode = 'manual';
 
 chrome.runtime.onConnect.addListener(function(port) {
 	console.assert(port.name == 'commands');
 	port.onMessage.addListener(function(msg) {
 		switch(msg.action) {
 			case 'addTask':
-				addToQueue(Tasks.startTask(msg.profession, msg.name), msg.id, port);
+				// should disable inputs instead
+				if (mode == 'manual') {
+					addToQueue(Tasks.startTask(msg.profession, msg.name), msg.id, port);
+				}
 				break;
 			case 'collectAll':
-				addToQueue(Tasks.collectAll(), msg.id, port);
+				if (mode == 'manual') {
+					addToQueue(Tasks.collectAll(), msg.id, port);
+				}
+				break;
+			case 'changeMode':
+				changeMode(msg.mode, msg.profession, msg.name)
 				break;
 		}
 	});
@@ -26,6 +35,26 @@ function addToQueue(action, id, port) {
 				return $.Deferred().resolve(val).promise();
 			})
 		.then(Timing.wait(2500));
+}
+
+function changeMode(newMode, profession, name) {
+	if (mode != newMode) {
+		if (newMode == 'auto') {
+			switchToAuto(profession, name);
+		} else {
+			switchToManual();
+		}
+	}
+
+	mode = newMode;
+}
+
+function switchToAuto(profession, name) {
+	Tasks.repeat(Tasks.startTask(profession, name));
+}
+
+function switchToAuto() {
+	Tasks.stop();
 }
 
 function clickElement($element) {
