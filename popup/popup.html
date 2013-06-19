@@ -8,26 +8,46 @@
 				min-width: 357px;
 				overflow-x: hidden;
 			}
+			.content {
+				padding: 5px;
+			}
+			/* html inside a bordered popup and at 100% width, no need */
+			.content .pure-menu {
+				border: none;
+				cursor: pointer;
+			}
+			/* don't show menu items if not open */
+			.pure-menu > ul {
+				display: none;
+			}
+			.pure-menu.pure-menu-open > ul {
+				display: block;
+				padding-left: 20px;
+			}
+			.queue-section {
+				padding-left: 20px;
+			}
 		</style>
 	</head>
 	<body>
-		<h4>Actions</h4>
-		<ul id="actions">
-		
-		</ul>
+		<div class="content">
+			<div id="actions"></div>
 
-		<h4>Queue</h4>
-		<ul id="queue">
-		</ul>
+			<div class="pure-menu collect-all">
+				<a class="pure-menu-heading">Collect All</a>
+			</div>
 
-		<button class="collect-all">
-			Collect All
-		</button>
+			<div class="queue-section">
+				<h4>Queue</h4>
+				<ul id="queue" style="">
+				</ul>
+			</div>
 
-		<script src="/lib/jquery.min.js"></script>
-		<script src="/lib/underscore-min.js"></script>
-		<script src="/lib/handlebars.runtime.js"></script>
-		<script src="/popup/templates.js"></script>
-		<script src="/popup/popup.js"></script>
+			<script src="/lib/jquery.min.js"></script>
+			<script src="/lib/underscore-min.js"></script>
+			<script src="/lib/handlebars.runtime.js"></script>
+			<script src="/popup/templates.js"></script>
+			<script src="/popup/popup.js"></script>
+		</div>
 	</body>
 </html>

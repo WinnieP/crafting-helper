@@ -18,7 +18,11 @@ function addToQueue(action, id, port) {
 	queue = queue
 		.then(action)
 		.then(function(val) {
-				port.postMessage({ result: 'done', id:  id });
+				try {
+					port.postMessage({ result: 'done', id:  id });
+				} catch (e) {
+					console.log('failed to notify popup using (id, port)', id, port);
+				}
 				return $.Deferred().resolve(val).promise();
 			})
 		.then(Timing.wait(2500));

@@ -13,7 +13,8 @@ function createApp() {
 		platesmithing: {
 			gatherHighQualityOre: 'Gather High quality Iron Ore',
 			massSteelPlateForging: 'Mass Steel Plate Forging',
-			forgeSteelPlates: 'Forge Steel Plates'
+			forgeSteelPlates: 'Forge Steel Plates',
+			forgeIronPlates: 'Forge Iron Plates'
 		},
 		leadership: {
 			feedTheNeedy: 'Feed the Needy',
@@ -48,37 +49,50 @@ function createApp() {
 		addTaskButtons: function() {
 			for (var profession in TaskNames) {
 				var professionTaskNames = TaskNames[profession];
+				var items = [];
 
 				for (var name in professionTaskNames) {
-					var html = Handlebars.templates['task-button']({
+					items.push(Handlebars.templates['task-item']({
 						profession: profession,
 						name: name,
 						text: professionTaskNames[name]
-					})
-					$('#actions').append(html);
+					}));
 				}
+
+				var menu = Handlebars.templates['task-profession-menu']({
+					profession: profession,
+					items: items.join(''),
+				})
+
+				$('#actions').append(menu);
 			}
 		},
 
 		connectToPort: function() {
 			chrome.tabs.query({active: true, currentWindow: true}, function(tab) {
-				console.log(tab);
-				port = chrome.tabs.connect(tab[0].id, {name: 'commands'});
-				port.onMessage.addListener(function(msg) {
-					if (msg.result == 'done') {
-						removeFromQueue(msg.id);
-					}
-				});
+				try {
+					port = chrome.tabs.connect(tab[0].id, {name: 'commands'});
+					port.onMessage.addListener(function(msg) {
+						if (msg.result == 'done') {
+							removeFromQueue(msg.id);
+						}
+					});
+				} catch (e) {
+					console.log('Failed to connect to tab: ', tab[0])
+				}
 			});
 		},
 
 		bindButtons: function() {
-			$('button.task').click(function(event) {
+			$('.task-menu-heading').click(function() {
+				$(this).closest('.pure-menu').toggleClass('pure-menu-open')
+			});
+
+			$('.task').click(function(event) {
 				var $el = $(event.target),
 					profession = $el.data('profession'),
 					taskName = TaskNames[profession][$el.data('name')],
 					id;
-					
 
 				id = sendMessage({
 					action: 'addTask',
@@ -89,7 +103,7 @@ function createApp() {
 				addToQueue(taskName, id);
 			});
 
-			$('button.collect-all').click(function(event) {
+			$('.collect-all').click(function(event) {
 				var id = sendMessage({ action: 'collectAll' });
 				addToQueue('Collect All', id)
 			});
