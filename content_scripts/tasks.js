@@ -112,13 +112,13 @@ var Tasks = (function() {
 								NavigateTo.profession('overview'),
 								Timing.pause
 							]).then(function() {
-								intervalId = setInterval(func, 1000)
+								intervalId = setInterval(func, 10000)
 							});
 						}
 					}
 				};
 
-				intervalId = setInterval(func, 1000);
+				intervalId = setInterval(func, 10000);
 			})
 		},
 

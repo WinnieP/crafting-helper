@@ -46,14 +46,14 @@ function changeMode(newMode, profession, name) {
 		}
 	}
 
-	mode = newMode;
+	localStorage.mode = mode = newMode;
 }
 
 function switchToAuto(profession, name) {
 	Tasks.repeat(Tasks.startTask(profession, name));
 }
 
-function switchToAuto() {
+function switchToManual() {
 	Tasks.stop();
 }
 
