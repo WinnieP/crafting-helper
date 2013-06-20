@@ -120,7 +120,7 @@ var Tasks = (function() {
 
 				intervalId = setInterval(func, 1000);
 			})
-		}
+		},
 
 		stop: function() {
 			clearInterval(intervalId);
